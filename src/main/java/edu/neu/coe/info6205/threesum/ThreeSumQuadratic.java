@@ -24,7 +24,7 @@ public class ThreeSumQuadratic implements ThreeSum {
 
     public Triple[] getTriples() {
         List<Triple> triples = new ArrayList<>();
-        for (int i = 0; i < length; i++) triples.addAll(getTriples(i));
+        for (int i = 1; i < length - 1; i++) triples.addAll(getTriples(i));
         Collections.sort(triples);
         return triples.stream().distinct().toArray(Triple[]::new);
     }
@@ -37,8 +37,42 @@ public class ThreeSumQuadratic implements ThreeSum {
      */
     public List<Triple> getTriples(int j) {
         List<Triple> triples = new ArrayList<>();
-        // FIXME : for each candidate, test if a[i] + a[j] + a[k] = 0.
-        // END 
+        
+        int leftIndex = 0;
+        int midIndex = j;
+        int rightIndex = a.length - 1;
+        
+        while (leftIndex < midIndex && midIndex < rightIndex) {
+        	Triple triple = new Triple(a[leftIndex], a[midIndex], a[rightIndex]);
+        	int sum = triple.sum();
+        	
+        	if (sum == 0) {
+        		triples.add(triple);
+        		
+        		do {
+        			leftIndex += 1;
+        		}
+        		while(leftIndex < midIndex && a[leftIndex - 1] == a[leftIndex]);
+        		
+        		do {
+        			rightIndex -= 1;
+        		}
+        		while(rightIndex > midIndex && a[rightIndex] == a[rightIndex + 1]);
+        	}
+        	else if (sum < 0) {
+        		do {
+        			leftIndex += 1;
+        		}
+        		while(leftIndex < midIndex && a[leftIndex - 1] == a[leftIndex]);
+        	}
+        	else {
+        		do {
+        			rightIndex -= 1;
+        		}
+        		while(rightIndex > midIndex && a[rightIndex] == a[rightIndex + 1]);
+        	}
+        }
+
         return triples;
     }
 
