@@ -4,10 +4,14 @@
 
 package edu.neu.coe.info6205.util;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+
+import edu.neu.coe.info6205.sort.elementary.InsertionSort;
 
 import static edu.neu.coe.info6205.util.Utilities.formatWhole;
 
@@ -30,6 +34,57 @@ import static edu.neu.coe.info6205.util.Utilities.formatWhole;
  * @param <T> The generic type T is that of the input to the function f which you will pass in to the constructor.
  */
 public class Benchmark_Timer<T> implements Benchmark<T> {
+	
+	public static void main(String args[]) {
+        InsertionSort<Integer> insertionSort = new InsertionSort<Integer>();
+        Consumer<Integer[]> consumer= (array) -> insertionSort.sort(array, 0, array.length);
+        Benchmark_Timer<Integer[]> benchmarkTimer = new Benchmark_Timer<Integer[]>("Insertion Sort", consumer);
+        
+        String[] orderings = new String[] {"Randomly Ordered", "Ordered", "Reverse Ordered", "Partially Ordered"};
+        int orderingIdx = 0;
+        System.out.println("\n" + orderings[orderingIdx] + ":");
+        
+        int arrayLength = 500;
+        while (arrayLength <= 8000) {
+        	int currArrayLength = arrayLength;
+        	int currOrderingIdx = orderingIdx;
+        	System.out.println("N = " + currArrayLength);
+        	
+        	Supplier<Integer[]> supplier = () -> {
+        		Integer[] arr = new Integer[currArrayLength];
+        		for (int i = 0; i < currArrayLength; i++) {
+            		arr[i] = (int)(Math.random() * 1000);
+            	}
+        		
+        		if (orderings[currOrderingIdx].equals("Ordered")) {
+        			Arrays.sort(arr);
+        		}
+        		else if (orderings[currOrderingIdx].equals("Reverse Ordered")) {
+        			Arrays.sort(arr, Collections.reverseOrder());
+        		}
+        		else if (orderings[currOrderingIdx].equals("Partially Ordered")) {
+        			Arrays.sort(arr);
+        			for (int j = currArrayLength / 2; j < currArrayLength; j++) {
+        				arr[j] = (int)(Math.random() * 1000);
+        			}
+        		}
+        		
+        		return arr;
+        	};
+        	
+        	System.out.println("Time taken = " + benchmarkTimer.runFromSupplier(supplier, 20) + "\n");
+        	
+        	if (arrayLength == 8000 && orderingIdx < orderings.length - 1) {
+        		arrayLength = 500;
+        		orderingIdx += 1;
+        		System.out.println("\n" + orderings[orderingIdx] + ":");
+        		
+        	}
+        	else {
+        		arrayLength *= 2;
+        	}
+        }
+	}
 
     /**
      * Calculate the appropriate number of warmup runs.
