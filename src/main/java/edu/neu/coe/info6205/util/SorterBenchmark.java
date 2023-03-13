@@ -1,5 +1,7 @@
 package edu.neu.coe.info6205.util;
 
+import edu.neu.coe.info6205.sort.Helper;
+import edu.neu.coe.info6205.sort.InstrumentedHelper;
 import edu.neu.coe.info6205.sort.SortWithHelper;
 
 import java.util.function.Consumer;
@@ -22,11 +24,26 @@ public class SorterBenchmark<T extends Comparable<T>> extends Benchmark_Timer<T[
      * @param N the number of elements.
      *          Not to be confused with nRuns, an instance field, which specifies the number of repetitions of the function.
      */
-    public void run(int N) {
+    public void run(int N, boolean isInstrumented) {
         logger.info("run: sort " + formatWhole(N) + " elements using " + this);
         sorter.init(N);
+        
         final double time = super.runFromSupplier(() -> generateRandomArray(ts), nRuns);
         for (TimeLogger timeLogger : timeLoggers) timeLogger.log(time, N);
+        
+        if (isInstrumented) {
+        	InstrumentedHelper<T> helper = (InstrumentedHelper<T>) sorter.getHelper();
+            
+            final int compares = helper.getCompares();
+            final int swaps = helper.getSwaps();
+            final int hits = helper.getHits();
+            final int copies = helper.getCopies();
+            
+            System.out.println("Compares: " + compares);
+            System.out.println("Swaps: " + swaps);
+            System.out.println("Hits: " + hits);
+            System.out.println("Copies: " + copies);
+        }
     }
 
     @Override
